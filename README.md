@@ -28,7 +28,7 @@ Lokálne spojenie Cursor → Blender cez `mcp-for-blender` a addon **MCP for Ble
 
 ## Stav
 
-Foundation: AP pin, README, `.gitignore` a overené MCP spojenie. Prvý baseline render je v `evidence/foundation-001/`. Detailnejšie stromy a vegetácia sú ďalšie kroky.
+Foundation: AP pin, README, `.gitignore` a overené MCP spojenie. Prvý baseline render je v `evidence/foundation-001/`. Pracovný súbor je `Jelena/Jelena_Realistic_v002.blend`; porovnanie z kamery A je v `evidence/vegetation-001/`.
 
 ## Baseline
 
