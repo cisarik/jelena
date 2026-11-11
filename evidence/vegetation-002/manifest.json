@@ -1,0 +1,176 @@
+{
+  "capture_time": "2026-11-11T19:28:35+0100",
+  "repository_source_commit": "77e8592d71bff40c07ab62a50b854a8849ebfa8e",
+  "working_blend_path": "/Users/agile/Projects/jelena/Jelena/Jelena_Realistic_v002.blend",
+  "working_blend_sha256_before": "1505d8c2ea28335c167a0b9f3340b79dbf5c2a963582179db177391a13327dcc",
+  "working_blend_sha256": "802fda3b78612711c758ba2736420a7a0f4a53deb8dfcb31df772f766f9fbc24",
+  "working_blend_bytes": 1798285,
+  "protected_baselines_sha256": {
+    "Jelena/Jelena.blend": "d2ed50aea93dfc00201be1def6db0b0b353be7eb473a799225c8a6f1386eb06f",
+    "Jelena/Jelena_Realistic_v001.blend": "b8304e7c585c36bec8e93b94868e143c42be00be6e5b3686cb0d05804304001b"
+  },
+  "correction_of": {
+    "commit": "77e8592d71bff40c07ab62a50b854a8849ebfa8e",
+    "camera_a_sha256": "c8730f9eff2d02b3143b39d818a742ab920d2b748b544828cef7801e9c800497",
+    "camera_a_hero_sha256": "0d27e90857415b337abeea619e700a0e80798d46a97639f0e9cd1a9faa7cb9a2",
+    "deficiencies_addressed": [
+      "smooth cone crowns with pin stubs",
+      "a wall of oversized similar trees",
+      "chunky grass only around the terrace and bare ground elsewhere",
+      "no forest-floor colour variation",
+      "flat grey sky and weak sunlight"
+    ]
+  },
+  "versions": {
+    "blender": "5.2.3 LTS",
+    "addon": "1.8",
+    "addon_name": "MCP for Blender",
+    "protocol": 15
+  },
+  "scene": "A • Chata pri lese",
+  "active_camera": "A • Chata pri lese",
+  "camera": {
+    "location_m": [13.899999618530273, -16.399999618530273, 6.349999904632568],
+    "rotation_euler_rad": [1.390952467918396, 1.9204376755510566e-08, 0.4771289527416229],
+    "lens_mm": 46.0,
+    "sensor_fit": "AUTO",
+    "sensor_width_mm": 36.0,
+    "sensor_height_mm": 24.0,
+    "shift_x": 0.0,
+    "shift_y": 0.0
+  },
+  "camera_match_max_abs_delta": 0.0,
+  "lighting_changes": [
+    {
+      "target": "scene A world",
+      "before": "Obloha nad lesom • A flat color strength 0.25",
+      "after": "same world copy, horizon (0.98, 0.86, 0.68) to zenith (0.27, 0.48, 0.84), strength 0.5"
+    },
+    {
+      "target": "scene A sun",
+      "before": "energy 4.0, angle 0.05 rad, color (1, 0.832, 0.64), rotation x 0.9153",
+      "after": "energy 6.5, angle 0.025 rad, color (1, 0.74, 0.46), rotation x 1.08, z unchanged at -0.3488"
+    },
+    {
+      "target": "scene A fill",
+      "before": "energy 120",
+      "after": "energy 40, diameter 8 m"
+    },
+    {
+      "target": "scene B",
+      "after": "world Obloha nad lesom strength 0.48, sun 2.2, disk 610, interior 65, 07b not excluded"
+    }
+  ],
+  "scene_b_readback": {
+    "objects": 308,
+    "sun_energy": 2.2,
+    "disk_energy": 610.0,
+    "interior_energy": 65.0,
+    "world": "Obloha nad lesom",
+    "world_strength": 0.48,
+    "excludes_07b": false
+  },
+  "applied_render_settings": {
+    "engine": "CYCLES",
+    "device": "CPU",
+    "resolution_x": 840,
+    "resolution_y": 560,
+    "resolution_percentage": 100,
+    "samples": 16,
+    "use_adaptive_sampling": false,
+    "use_denoising": true,
+    "denoiser": "OPENIMAGEDENOISE",
+    "seed": 0,
+    "frame": 1,
+    "view_transform": "AgX",
+    "look": "None",
+    "exposure": 0.0,
+    "gamma": 1.0,
+    "use_curve_mapping": false,
+    "file_format": "PNG",
+    "color_mode": "RGB",
+    "color_depth": "8"
+  },
+  "restored_render_settings": {
+    "resolution_x": 1260,
+    "resolution_y": 840,
+    "samples": 80,
+    "use_adaptive_sampling": true,
+    "use_denoising": false,
+    "denoiser": "OPENIMAGEDENOISE",
+    "seed": 0,
+    "view_transform": "AgX",
+    "look": "None",
+    "exposure": 0.0,
+    "gamma": 1.0,
+    "use_curve_mapping": false,
+    "file_format": "PNG",
+    "color_mode": "RGBA",
+    "filepath": "/tmp/",
+    "engine": "CYCLES",
+    "device": "CPU"
+  },
+  "output": {
+    "path": "/Users/agile/Projects/jelena/evidence/vegetation-002/camera-a.png",
+    "pixel_width": 840,
+    "pixel_height": 560,
+    "sha256": "ab407d620bc999f796c75285831f42eed992fb292e36ff341b86601549b33c15",
+    "bytes": 666066
+  },
+  "hero_output": {
+    "path": "/Users/agile/Projects/jelena/evidence/vegetation-002/camera-a-hero.png",
+    "pixel_width": 1260,
+    "pixel_height": 840,
+    "samples": 64,
+    "use_adaptive_sampling": true,
+    "use_denoising": true,
+    "sha256": "ea81e56847c92c4a1ed211a57fe18a37bd0dddf7e982fbeb3033a51455871396",
+    "bytes": 1440716,
+    "render_duration_s": 47.416,
+    "note": "Additional evidence. Not a substitute for the matched comparison."
+  },
+  "render_duration_s": 16.904,
+  "matched_renders": 2,
+  "resident_memory": {
+    "label": "ps RSS multiplied by 1024; not allocator-peak telemetry",
+    "pid": 4709,
+    "comparison_rss_bytes_before": 289112064,
+    "comparison_rss_bytes_after": 383762432,
+    "hero_rss_bytes_before": 27820032,
+    "hero_rss_bytes_after": 1168867328,
+    "gate_bytes": 6442450944,
+    "reduction_applied": false
+  },
+  "prototypes": {
+    "triangles": {
+      "Smrek • vysoký": 1715,
+      "Smrek • stredný": 1093,
+      "Smrek • mladý": 720
+    },
+    "unique_triangles": 3528,
+    "instances": {
+      "tall": 13,
+      "mid": 13,
+      "young": 12
+    },
+    "in_camera_frame": {
+      "tall": 6,
+      "mid": 7,
+      "young": 7
+    },
+    "grass_clumps": 138749,
+    "scatter_area": "full Lesná čistina terrain, about 62 by 58 m, density 95 per square metre at 4 m from the camera falling to 18 per square metre at 42 m, thinned behind the camera, excluding the cabin, the terrace, and 0.42 m around each stepping stone"
+  },
+  "visual_review": {
+    "inspected": true,
+    "image": "camera-a.png",
+    "gates_passed": [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+    ],
+    "improved": "Crowns are branch skeletons with separate foliage clumps and visible gaps, not smooth cones. Three architectures sit in the frame at more than one depth, and the cabin stays clear. Grass covers the visible ground, including the hill, and reads as fine blades rather than cubes. The sky grades from warm horizon to blue, and sunlight casts a readable shadow while the facade stays lit.",
+    "still_weakest": "The trees are still sparse and stylized, the blades are simple cards, and the moss, litter and soil patches are mild.",
+    "subjective_acceptance": "pending Michal",
+    "more_convincing_than_foundation_and_vegetation_001": true
+  },
+  "persistence": "Saved only after the scene-B readback and with restored working render settings. vegetation-001 and both baselines were not overwritten."
+}

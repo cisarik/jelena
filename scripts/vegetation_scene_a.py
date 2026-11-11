@@ -1080,5 +1080,644 @@ def main():
     print(json.dumps(summary, ensure_ascii=False))
 
 
+def _ortho(direction):
+    up = Vector((0.0, 0.0, 1.0))
+    side = direction.cross(up)
+    if side.length < 1e-6:
+        side = Vector((1.0, 0.0, 0.0))
+    side.normalize()
+    return side, direction.cross(side).normalized()
+
+
+def _curve_tube(bm, origin, direction, length, bend, r0, r1, sides, segs, mat):
+    direction = direction.normalized()
+    points = []
+    for i in range(segs + 1):
+        t = i / segs
+        points.append(origin + direction * (length * t) + bend * (t * t * length))
+    rings = []
+    for i, point in enumerate(points):
+        t = i / segs
+        if i < segs:
+            tangent = (points[i + 1] - point).normalized()
+        else:
+            tangent = (point - points[i - 1]).normalized()
+        side, binorm = _ortho(tangent)
+        radius = r0 + (r1 - r0) * t
+        ring = []
+        for k in range(sides):
+            ang = 2.0 * math.pi * k / sides
+            ring.append(bm.verts.new(point + (side * math.cos(ang) + binorm * math.sin(ang)) * radius))
+        rings.append(ring)
+    for i in range(segs):
+        for k in range(sides):
+            j = (k + 1) % sides
+            face = bm.faces.new((rings[i][k], rings[i][j], rings[i + 1][j], rings[i + 1][k]))
+            face.material_index = mat
+            face.smooth = True
+    return points[-1], (points[-1] - points[-2]).normalized()
+
+
+def _leaf_clump(bm, center, direction, scale, rng, mat, color_layer, tint):
+    direction = direction.normalized()
+    count = rng.randint(10, 14)
+    for _ in range(count):
+        yaw = rng.random() * math.tau
+        pitch = rng.uniform(0.15, 1.1)
+        offset = Vector((math.cos(yaw), math.sin(yaw), pitch))
+        offset.normalize()
+        aim = (direction * 0.35 + offset).normalized()
+        length = scale * rng.uniform(0.45, 0.95)
+        width = scale * rng.uniform(0.08, 0.16)
+        base = center + offset * (scale * rng.uniform(0.05, 0.28))
+        side, binorm = _ortho(aim)
+        tip = base + aim * length
+        v0 = bm.verts.new(base + side * width)
+        v1 = bm.verts.new(base - side * width)
+        v2 = bm.verts.new(tip + binorm * (width * 0.25))
+        face = bm.faces.new((v0, v1, v2))
+        face.material_index = mat
+        face.smooth = False
+        if color_layer is not None:
+            for loop in face.loops:
+                loop[color_layer] = tint
+
+
+def _skeleton_spec(kind):
+    if kind == "tall":
+        return {
+            "height": 7.1,
+            "trunk": 2.5,
+            "trunk_r": (0.16, 0.045),
+            "bend": Vector((0.22, -0.06, 0.0)),
+            "whorls": 6,
+            "per_whorl": 5,
+            "skip": 0.28,
+            "rise": 0.62,
+            "reach": 1.15,
+            "secondaries": 3,
+            "clump": 0.78,
+            "seed": 11,
+            "side_bias": Vector((1.0, 0.2, 0.0)),
+        }
+    if kind == "mid":
+        return {
+            "height": 5.4,
+            "trunk": 1.25,
+            "trunk_r": (0.14, 0.04),
+            "bend": Vector((-0.28, 0.12, 0.0)),
+            "whorls": 4,
+            "per_whorl": 6,
+            "skip": 0.18,
+            "rise": 0.18,
+            "reach": 2.05,
+            "secondaries": 2,
+            "clump": 0.95,
+            "seed": 29,
+            "side_bias": Vector((-0.4, 1.0, 0.0)),
+        }
+    return {
+        "height": 4.1,
+        "trunk": 1.85,
+        "trunk_r": (0.07, 0.025),
+        "bend": Vector((0.08, 0.18, 0.0)),
+        "whorls": 3,
+        "per_whorl": 3,
+        "skip": 0.42,
+        "rise": 0.34,
+"reach": 1.25,
+            "secondaries": 2,
+            "clump": 0.58,
+        "seed": 47,
+        "side_bias": Vector((0.2, -1.0, 0.0)),
+    }
+
+
+def _build_skeleton(bm, spec):
+    rng = random.Random(spec["seed"])
+    color_layer = bm.loops.layers.color.new("Col")
+    tip, _up = _curve_tube(
+        bm,
+        Vector((0.0, 0.0, 0.0)),
+        Vector((0.0, 0.0, 1.0)),
+        spec["trunk"],
+        spec["bend"],
+        spec["trunk_r"][0],
+        spec["trunk_r"][1],
+        8,
+        10,
+        0,
+    )
+    made = 0
+    for whorl in range(spec["whorls"]):
+        t = (whorl + 0.35) / spec["whorls"]
+        z = spec["trunk"] * (0.42 + 0.58 * t)
+        reach = spec["reach"] * (1.05 - 0.72 * t)
+        radius = spec["trunk_r"][0] * (1.0 - 0.65 * t) * 0.42
+        for branch in range(spec["per_whorl"]):
+            if rng.random() < spec["skip"] * (0.45 + t):
+                continue
+            ang = 2.0 * math.pi * (branch + 0.17 * whorl) / spec["per_whorl"]
+            ang += spec["seed"] * 0.01 + whorl * 0.33
+            horizontal = Vector((math.cos(ang), math.sin(ang), 0.0))
+            if horizontal.dot(spec["side_bias"]) > 0.35 and rng.random() < 0.55:
+                continue
+            direction = Vector((horizontal.x, horizontal.y, spec["rise"] + 0.08 * rng.random()))
+            bend = Vector((rng.uniform(-0.15, 0.15), rng.uniform(-0.15, 0.15), -0.22))
+            end, tangent = _curve_tube(
+                bm,
+                Vector((0.0, 0.0, z)),
+                direction,
+                reach,
+                bend,
+                max(0.02, radius),
+                max(0.008, radius * 0.35),
+                5,
+                4,
+                0,
+            )
+            tint = (
+                rng.uniform(0.02, 0.12),
+                rng.uniform(0.28, 0.72),
+                rng.uniform(0.02, 0.08),
+                1.0,
+            )
+            _leaf_clump(bm, end, tangent, spec["clump"] * rng.uniform(0.75, 1.15), rng, 1, color_layer, tint)
+            for secondary in range(spec["secondaries"]):
+                if rng.random() < 0.25:
+                    continue
+                along = rng.uniform(0.35, 0.82)
+                origin = Vector((0.0, 0.0, z)) + direction.normalized() * (reach * along)
+                twig_dir = (direction + Vector((rng.uniform(-0.8, 0.8), rng.uniform(-0.8, 0.8), rng.uniform(0.1, 0.8)))).normalized()
+                twig_len = reach * rng.uniform(0.28, 0.48)
+                twig_end, twig_tangent = _curve_tube(
+                    bm,
+                    origin,
+                    twig_dir,
+                    twig_len,
+                    Vector((0.0, 0.0, -0.15)),
+                    max(0.012, radius * 0.45),
+                    0.006,
+                    4,
+                    2,
+                    0,
+                )
+                _leaf_clump(
+                    bm,
+                    twig_end,
+                    twig_tangent,
+                    spec["clump"] * rng.uniform(0.45, 0.8),
+                    rng,
+                    1,
+                    color_layer,
+                    tint,
+                )
+            made += 1
+    if made < 4:
+        raise RuntimeError(f"skeleton produced only {made} primary branches")
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+
+
+def _replace_skeleton(obj, kind, bark, foliage):
+    spec = _skeleton_spec(kind)
+    bm = bmesh.new()
+    _build_skeleton(bm, spec)
+    bm.to_mesh(obj.data)
+    bm.free()
+    mesh = obj.data
+    mesh.materials.clear()
+    mesh.materials.append(bark)
+    mesh.materials.append(foliage)
+    color = mesh.color_attributes.get("Col")
+    if color is not None:
+        for poly in mesh.polygons:
+            for loop_index in poly.loop_indices:
+                if color.data[loop_index].color[0] < 0.9:
+                    poly.material_index = 1
+                    break
+    mesh.update()
+    obj["jelena_radius"] = spec["reach"] + spec["clump"]
+    obj["jelena_height"] = spec["height"]
+    return spec
+
+
+def _tune_foliage(mat):
+    nt = mat.node_tree
+    if any(node.name == "Korekcia zhluk" for node in nt.nodes):
+        return
+    bsdf = principled(mat)
+    vert = nt.nodes.new("ShaderNodeVertexColor")
+    vert.name = "Korekcia zhluk"
+    vert.layer_name = "Col"
+    info = next((node for node in nt.nodes if node.type == "OBJECT_INFO"), None)
+    if info is None:
+        info = nt.nodes.new("ShaderNodeObjectInfo")
+    mix = nt.nodes.new("ShaderNodeMix")
+    mix.data_type = "RGBA"
+    mix.name = "Korekcia mix"
+    sock(mix, "A").default_value = (0.015, 0.055, 0.018, 1.0)
+    sock(mix, "B").default_value = (0.09, 0.16, 0.03, 1.0)
+    nt.links.new(out_sock(info, "Random"), sock(mix, "Factor"))
+    mix2 = nt.nodes.new("ShaderNodeMix")
+    mix2.data_type = "RGBA"
+    sock(mix2, "Factor").default_value = 0.55
+    nt.links.new(out_sock(mix, "Result"), sock(mix2, "A"))
+    nt.links.new(out_sock(vert, "Color"), sock(mix2, "B"))
+    nt.links.new(out_sock(mix2, "Result"), bsdf.inputs["Base Color"])
+    bsdf.inputs["Roughness"].default_value = 0.72
+
+
+def _tune_bark(mat):
+    bsdf = principled(mat)
+    bsdf.inputs["Roughness"].default_value = 0.86
+
+
+def _tune_ground():
+    mat = bpy.data.materials["Lesná pôda"]
+    nt = mat.node_tree
+    if any(node.name == "Korekcia mach" for node in nt.nodes):
+        return
+    bsdf = principled(mat)
+    coord = next(node for node in nt.nodes if node.type == "TEX_COORD")
+    noise = nt.nodes.new("ShaderNodeTexNoise")
+    noise.name = "Korekcia mach"
+    noise.inputs["Scale"].default_value = 0.11
+    noise.inputs["Detail"].default_value = 2.0
+    noise.inputs["Roughness"].default_value = 0.62
+    speckle = nt.nodes.new("ShaderNodeTexNoise")
+    speckle.name = "Korekcia opad"
+    speckle.inputs["Scale"].default_value = 1.4
+    speckle.inputs["Detail"].default_value = 6.0
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    ramp.name = "Korekcia pôda"
+    ramp.color_ramp.elements[0].position = 0.28
+    ramp.color_ramp.elements[0].color = (0.11, 0.07, 0.028, 1)
+    ramp.color_ramp.elements[1].position = 0.62
+    ramp.color_ramp.elements[1].color = (0.025, 0.09, 0.022, 1)
+    if len(ramp.color_ramp.elements) < 3:
+        ramp.color_ramp.elements.new(0.82)
+    ramp.color_ramp.elements[2].position = 0.84
+    ramp.color_ramp.elements[2].color = (0.16, 0.12, 0.045, 1)
+    mix = nt.nodes.new("ShaderNodeMix")
+    mix.data_type = "RGBA"
+    sock(mix, "Factor").default_value = 0.88
+    previous = None
+    for link in list(nt.links):
+        if link.to_node == bsdf and link.to_socket.name == "Base Color":
+            previous = link.from_socket
+            nt.links.remove(link)
+    nt.links.new(coord.outputs["Object"], noise.inputs["Vector"])
+    nt.links.new(coord.outputs["Object"], speckle.inputs["Vector"])
+    nt.links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
+    if previous is not None:
+        nt.links.new(previous, sock(mix, "A"))
+    nt.links.new(ramp.outputs["Color"], sock(mix, "B"))
+    nt.links.new(out_sock(mix, "Result"), bsdf.inputs["Base Color"])
+
+
+def _thin_blade(obj, height, width, count):
+    bm = bmesh.new()
+    for i in range(count):
+        ang = i * math.pi / count + 0.35
+        c = math.cos(ang)
+        s = math.sin(ang)
+        hw = width * 0.5
+        local = ((-hw, 0.0, 0.0), (hw, 0.0, 0.0), (hw * 0.45, 0.0, height), (-hw * 0.45, 0.0, height))
+        verts = [bm.verts.new((x * c - y * s, x * s + y * c, z)) for x, y, z in local]
+        bm.faces.new(verts)
+    bm.to_mesh(obj.data)
+    bm.free()
+    obj.data.update()
+
+
+def _sky_and_sun():
+    world = bpy.data.scenes[SCENE_A].world
+    nt = world.node_tree
+    bg = next(node for node in nt.nodes if node.type == "BACKGROUND")
+    if not any(node.name == "Korekcia obloha" for node in nt.nodes):
+        geom = nt.nodes.new("ShaderNodeNewGeometry")
+        geom.name = "Korekcia obloha"
+        separate = nt.nodes.new("ShaderNodeSeparateXYZ")
+        span = nt.nodes.new("ShaderNodeMapRange")
+        span.inputs["From Min"].default_value = 0.02
+        span.inputs["From Max"].default_value = 0.08
+        span.inputs["To Min"].default_value = 0.0
+        span.inputs["To Max"].default_value = 1.0
+        mix = nt.nodes.new("ShaderNodeMix")
+        mix.data_type = "RGBA"
+        sock(mix, "A").default_value = (0.96, 0.74, 0.50, 1.0)
+        sock(mix, "B").default_value = (0.27, 0.48, 0.84, 1.0)
+        nt.links.new(out_sock(geom, "Normal"), sock(separate, "Vector"))
+        nt.links.new(out_sock(separate, "Z"), span.inputs["Value"])
+        nt.links.new(span.outputs["Result"], sock(mix, "Factor"))
+        for link in list(nt.links):
+            if link.to_node == bg and link.to_socket.name == "Color":
+                nt.links.remove(link)
+        nt.links.new(out_sock(mix, "Result"), bg.inputs["Color"])
+    bg.inputs["Strength"].default_value = 0.5
+    sun = bpy.data.objects[SUN_A]
+    before = {
+        "energy": float(sun.data.energy),
+        "angle": float(sun.data.angle),
+        "color": [round(c, 4) for c in sun.data.color],
+        "rotation": [round(v, 4) for v in sun.rotation_euler],
+    }
+    sun.data.energy = 6.5
+    sun.data.angle = 0.025
+    sun.data.color = (1.0, 0.74, 0.46)
+    sun.rotation_euler.x = 1.08
+    disk = bpy.data.objects[DISK_A]
+    disk_before = float(disk.data.energy)
+    disk.data.energy = 40.0
+    return before, disk_before
+
+
+def _clear_group(ng):
+    ng.nodes.clear()
+    return ng
+
+
+def _rebuild_grass(cover):
+    _thin_blade(bpy.data.objects["Karta trávy A"], 0.13, 0.03, 5)
+    _thin_blade(bpy.data.objects["Karta trávy B"], 0.09, 0.022, 5)
+    grass = bpy.data.materials["Tráva • pokryv"]
+    grass_bsdf = principled(grass)
+    grass_bsdf.inputs["Base Color"].default_value = (0.22, 0.48, 0.09, 1.0)
+    grass_bsdf.inputs["Roughness"].default_value = 0.92
+    ng = cover.modifiers[GROUP].node_group
+    _clear_group(ng)
+    nodes = ng.nodes
+    links = ng.links
+    ground = nodes.new("GeometryNodeObjectInfo")
+    ground.transform_space = "RELATIVE"
+    ground.inputs["Object"].default_value = bpy.data.objects["Lesná čistina"]
+    position = nodes.new("GeometryNodeInputPosition")
+    separate = nodes.new("ShaderNodeSeparateXYZ")
+    links.new(out_sock(position, "Position"), sock(separate, "Vector"))
+    normal = nodes.new("GeometryNodeInputNormal")
+    normal_sep = nodes.new("ShaderNodeSeparateXYZ")
+    links.new(out_sock(normal, "Normal"), sock(normal_sep, "Vector"))
+    upright = compare(ng, "GREATER_THAN", out_sock(normal_sep, "Z"), 0.45)
+    cam = nodes.new("ShaderNodeCombineXYZ")
+    cam.inputs["X"].default_value = 13.9
+    cam.inputs["Y"].default_value = -16.4
+    cam.inputs["Z"].default_value = 0.0
+    delta = nodes.new("ShaderNodeVectorMath")
+    delta.operation = "SUBTRACT"
+    links.new(out_sock(position, "Position"), delta.inputs[0])
+    links.new(cam.outputs["Vector"], delta.inputs[1])
+    dist = nodes.new("ShaderNodeVectorMath")
+    dist.operation = "LENGTH"
+    links.new(delta.outputs["Vector"], dist.inputs[0])
+    span = nodes.new("ShaderNodeMapRange")
+    span.inputs["From Min"].default_value = 4.0
+    span.inputs["From Max"].default_value = 42.0
+    span.inputs["To Min"].default_value = 95.0
+    span.inputs["To Max"].default_value = 18.0
+    links.new(dist.outputs["Value"], span.inputs["Value"])
+    view = nodes.new("ShaderNodeCombineXYZ")
+    view.inputs["X"].default_value = -0.46
+    view.inputs["Y"].default_value = 0.89
+    view.inputs["Z"].default_value = 0.0
+    forward = nodes.new("ShaderNodeVectorMath")
+    forward.operation = "DOT_PRODUCT"
+    links.new(delta.outputs["Vector"], forward.inputs[0])
+    links.new(view.outputs["Vector"], forward.inputs[1])
+    front = nodes.new("ShaderNodeMapRange")
+    front.inputs["From Min"].default_value = -6.0
+    front.inputs["From Max"].default_value = 4.0
+    front.inputs["To Min"].default_value = 0.35
+    front.inputs["To Max"].default_value = 1.0
+    links.new(forward.outputs["Value"], front.inputs["Value"])
+    density_math = nodes.new("ShaderNodeMath")
+    density_math.operation = "MULTIPLY"
+    links.new(span.outputs["Result"], density_math.inputs[0])
+    links.new(front.outputs["Result"], density_math.inputs[1])
+    x = out_sock(separate, "X")
+    y = out_sock(separate, "Y")
+    cabin = bool_and(ng, compare(ng, "GREATER_THAN", x, -0.7), compare(ng, "LESS_THAN", x, 9.4))
+    cabin = bool_and(ng, cabin, compare(ng, "GREATER_THAN", y, -0.8))
+    cabin = bool_and(ng, cabin, compare(ng, "LESS_THAN", y, 7.0))
+    terrace = bool_and(ng, compare(ng, "GREATER_THAN", x, 3.15), compare(ng, "LESS_THAN", x, 9.35))
+    terrace = bool_and(ng, terrace, compare(ng, "GREATER_THAN", y, -3.05))
+    terrace = bool_and(ng, terrace, compare(ng, "LESS_THAN", y, 2.15))
+    blocked = bool_and(ng, bool_not(ng, cabin), bool_not(ng, terrace))
+    stone_or = None
+    for obj in bpy.data.collections["05 • Les a okolie"].objects:
+        if not obj.name.startswith("Nášľap"):
+            continue
+        loc = obj.matrix_world.translation
+        point = nodes.new("ShaderNodeCombineXYZ")
+        point.inputs["X"].default_value = float(loc.x)
+        point.inputs["Y"].default_value = float(loc.y)
+        point.inputs["Z"].default_value = 0.0
+        flat = nodes.new("ShaderNodeCombineXYZ")
+        links.new(x, flat.inputs["X"])
+        links.new(y, flat.inputs["Y"])
+        away = nodes.new("ShaderNodeVectorMath")
+        away.operation = "DISTANCE"
+        links.new(flat.outputs["Vector"], away.inputs[0])
+        links.new(point.outputs["Vector"], away.inputs[1])
+        near = compare(ng, "LESS_THAN", away.outputs["Value"], 0.42)
+        if stone_or is None:
+            stone_or = near
+        else:
+            node = nodes.new("FunctionNodeBooleanMath")
+            node.operation = "OR"
+            links.new(stone_or, node.inputs[0])
+            links.new(near, node.inputs[1])
+            stone_or = node.outputs[0]
+    open_ground = bool_and(ng, upright, blocked)
+    if stone_or is not None:
+        open_ground = bool_and(ng, open_ground, bool_not(ng, stone_or))
+    distribute = nodes.new("GeometryNodeDistributePointsOnFaces")
+    distribute.distribute_method = "RANDOM"
+    links.new(out_sock(ground, "Geometry"), sock(distribute, "Mesh"))
+    links.new(open_ground, sock(distribute, "Selection"))
+    links.new(density_math.outputs["Value"], sock(distribute, "Density"))
+    sock(distribute, "Seed").default_value = 4
+    cards = [bpy.data.objects["Karta trávy A"], bpy.data.objects["Karta trávy B"]]
+    infos = []
+    for card in cards:
+        info = nodes.new("GeometryNodeObjectInfo")
+        info.transform_space = "RELATIVE"
+        info.inputs["Object"].default_value = card
+        infos.append(info)
+    switch = nodes.new("GeometryNodeSwitch")
+    if "input_type" in switch.bl_rna.properties:
+        idents = [item.identifier for item in switch.bl_rna.properties["input_type"].enum_items]
+        if "GEOMETRY" in idents:
+            switch.input_type = "GEOMETRY"
+    pick = nodes.new("FunctionNodeRandomValue")
+    pick.data_type = "FLOAT"
+    sock(pick, "Min").default_value = 0.0
+    sock(pick, "Max").default_value = 1.0
+    sock(pick, "Seed").default_value = 9
+    choose = nodes.new("FunctionNodeCompare")
+    choose.data_type = "FLOAT"
+    choose.operation = "GREATER_THAN"
+    links.new(out_sock(pick, "Value"), sock(choose, "A"))
+    sock(choose, "B").default_value = 0.5
+    links.new(out_sock(choose, "Result"), sock(switch, "Switch"))
+    links.new(out_sock(infos[0], "Geometry"), sock(switch, "False"))
+    links.new(out_sock(infos[1], "Geometry"), sock(switch, "True"))
+    instance = nodes.new("GeometryNodeInstanceOnPoints")
+    links.new(out_sock(distribute, "Points"), sock(instance, "Points"))
+    links.new(out_sock(switch, "Output"), sock(instance, "Instance"))
+    rot = nodes.new("FunctionNodeRandomValue")
+    rot.data_type = "FLOAT"
+    sock(rot, "Min").default_value = 0.0
+    sock(rot, "Max").default_value = math.tau
+    sock(rot, "Seed").default_value = 11
+    combine_r = nodes.new("ShaderNodeCombineXYZ")
+    links.new(out_sock(rot, "Value"), sock(combine_r, "Z"))
+    links.new(out_sock(combine_r, "Vector"), sock(instance, "Rotation"))
+    scale = nodes.new("FunctionNodeRandomValue")
+    scale.data_type = "FLOAT"
+    sock(scale, "Min").default_value = 0.55
+    sock(scale, "Max").default_value = 1.35
+    sock(scale, "Seed").default_value = 13
+    combine_s = nodes.new("ShaderNodeCombineXYZ")
+    links.new(out_sock(scale, "Value"), sock(combine_s, "X"))
+    links.new(out_sock(scale, "Value"), sock(combine_s, "Y"))
+    links.new(out_sock(scale, "Value"), sock(combine_s, "Z"))
+    links.new(out_sock(combine_s, "Vector"), sock(instance, "Scale"))
+    output = nodes.new("NodeGroupOutput")
+    links.new(out_sock(instance, "Instances"), sock(output, "Geometry"))
+    return distribute
+
+
+def _slot_list():
+    slots = [
+        (-7.4, -8.6, "young", 1.0),
+        (-11.2, -3.2, "mid", 0.82),
+        (17.4, -9.0, "young", 0.95),
+        (20.2, -4.4, "tall", 0.7),
+        (-14.2, 4.8, "tall", 0.92),
+        (-8.8, 10.2, "mid", 1.0),
+        (-3.8, 13.6, "young", 1.05),
+        (13.4, 7.8, "mid", 0.88),
+        (17.0, 11.8, "tall", 0.9),
+        (22.2, 3.6, "young", 0.9),
+        (-16.4, -6.4, "mid", 0.74),
+        (24.2, -1.6, "tall", 0.68),
+    ]
+    x = -18.0
+    y = 16.0
+    kinds = ("tall", "mid", "young")
+    while len(slots) < 38:
+        slots.append((x, y, kinds[len(slots) % 3], 0.66 + (len(slots) % 5) * 0.08))
+        x += 5.2
+        if x > 26.0:
+            x = -17.0 + (len(slots) % 3) * 0.8
+            y += 3.1
+    return slots
+
+
+def _move_trees():
+    scene = bpy.context.scene
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    prototypes = {
+        "tall": bpy.data.objects["Smrek • vysoký"],
+        "mid": bpy.data.objects["Smrek • stredný"],
+        "young": bpy.data.objects["Smrek • mladý"],
+    }
+    stones = []
+    arch = []
+    for obj in bpy.data.collections["05 • Les a okolie"].objects:
+        if obj.name.startswith("Nášľap"):
+            stones.append(world_aabb(obj))
+    for name in ("01 • Import 3D | pôvodná geometria", "02 • Strecha a štíty", "06 • Terasa"):
+        for obj in bpy.data.collections[name].objects:
+            if obj.type == "MESH":
+                arch.append(world_aabb(obj))
+    trees = [obj for obj in bpy.data.collections["10 • Vegetácia scéna A"].objects if obj.get("jelena_proto") in prototypes]
+    trees.sort(key=lambda obj: obj.name)
+    placed = []
+    for obj, (x, y, kind, scale) in zip(trees, _slot_list()):
+        spec = _skeleton_spec(kind)
+        radius = (spec["reach"] + spec["clump"]) * scale
+        height = spec["height"] * scale
+        chosen = None
+        for dx, dy in ((0, 0), (1.4, 0), (-1.4, 0), (0, 1.4), (0, -1.4), (2.2, 1.6), (-2.2, 1.2)):
+            xx = x + dx
+            yy = y + dy
+            if forbidden_trunk(xx, yy, stones):
+                continue
+            if any((xx - px) ** 2 + (yy - py) ** 2 < 3.2 ** 2 for px, py in placed):
+                continue
+            hit, loc, _n, _i, hit_obj, _m = scene.ray_cast(
+                depsgraph, Vector((xx, yy, 40.0)), Vector((0.0, 0.0, -1.0)), distance=80.0
+            )
+            if not hit or hit_obj is None or hit_obj.name != "Lesná čistina":
+                continue
+            box = (
+                (xx - radius, yy - radius, loc.z - 0.02),
+                (xx + radius, yy + radius, loc.z - 0.02 + height),
+            )
+            if aabb_hit(box, arch, pad=0.08):
+                continue
+            chosen = (xx, yy, loc.z - 0.02)
+            break
+        if chosen is None:
+            continue
+        obj.data = prototypes[kind].data
+        obj["jelena_proto"] = kind
+        obj.location = chosen
+        obj.scale = (scale, scale, scale)
+        obj.rotation_euler.z = (len(placed) * 0.83) % math.tau
+        placed.append((chosen[0], chosen[1]))
+    return len(trees), len(placed)
+
+
+def apply_correction():
+    require_v002()
+    bark = bpy.data.materials["Kôra • smrek"]
+    foliage = bpy.data.materials["Ihličie • koruna"]
+    _tune_bark(bark)
+    _tune_foliage(foliage)
+    specs = {}
+    for kind, name in (("tall", "Smrek • vysoký"), ("mid", "Smrek • stredný"), ("young", "Smrek • mladý")):
+        specs[kind] = _replace_skeleton(bpy.data.objects[name], kind, bark, foliage)
+    _tune_ground()
+    sun_before, disk_before = _sky_and_sun()
+    trees, moved = _move_trees()
+    cover = bpy.data.objects["Pôda • pokryv"]
+    _rebuild_grass(cover)
+    for name in ("Karta trávy A", "Karta trávy B"):
+        card = bpy.data.objects[name]
+        card.hide_render = True
+        card.hide_viewport = True
+    bpy.context.view_layer.update()
+    cards = count_cards(cover)
+    counts = {}
+    for name in ("Smrek • vysoký", "Smrek • stredný", "Smrek • mladý"):
+        obj = bpy.data.objects[name]
+        obj.data.calc_loop_triangles()
+        counts[name] = len(obj.data.loop_triangles)
+    final_b = assert_scene_b("correction")
+    delta, sensor_fit = camera_delta()
+    if delta > 1e-5 or sensor_fit != "AUTO":
+        raise RuntimeError(f"camera changed {delta}")
+    print(json.dumps({
+        "triangles": counts,
+        "trees": trees,
+        "moved": moved,
+        "cards": cards,
+        "sun_before": sun_before,
+        "disk_before": disk_before,
+        "sun_after": {
+            "energy": float(bpy.data.objects[SUN_A].data.energy),
+            "angle": float(bpy.data.objects[SUN_A].data.angle),
+            "color": [round(c, 4) for c in bpy.data.objects[SUN_A].data.color],
+            "rotation": [round(v, 4) for v in bpy.data.objects[SUN_A].rotation_euler],
+        },
+        "disk_after": float(bpy.data.objects[DISK_A].data.energy),
+        "world": world_strength(bpy.context.scene.world),
+        "scene_b": final_b,
+        "camera_delta": delta,
+    }, ensure_ascii=False))
+
+
 if __name__ == "__main__":
     main()
