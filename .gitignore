@@ -1,0 +1,10 @@
+.DS_Store
+*.blend[0-9]*
+*.blend@
+*.blend.tmp
+/.local/
+/.cache/
+/renders/tmp/
+**/blendcache_*/
+__pycache__/
+*.py[cod]
