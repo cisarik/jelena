@@ -5,7 +5,9 @@ Cvičný projekt vizualizácie chaty pri lese. Cieľom je ukázať, ako AI-assis
 ## Súbory
 
 - `Jelena/Jelena.blend` — pôvodná scéna.
-- `Jelena/Jelena_Realistic_v001.blend` — pracovná kópia.
+- `Jelena/Jelena_Realistic_v001.blend` — pôvodná realistická kópia.
+- `Jelena/Jelena_Realistic_v002.blend` — predchádzajúci pracovný súbor (história).
+- `Jelena/Jelena_Realistic_v003.blend` — akceptovaný pracovný súbor.
 - `Jelena/Jelena_3D.obj`, `Jelena/Jelena_Model.step`, `Jelena/Jelena_Podorys.dxf` — geometrické podklady.
 - `Jelena/Jelena_Exterier.png`, `Jelena/Jelena_Dispozicia.png`, `Jelena/Jelena_Interier.png` — referenčné rendery.
 - `Jelena_Studia.pdf` — architektonická štúdia.
@@ -28,7 +30,7 @@ Lokálne spojenie Cursor → Blender cez `mcp-for-blender` a addon **MCP for Ble
 
 ## Stav
 
-Foundation: AP pin, README, `.gitignore` a overené MCP spojenie. Prvý baseline render je v `evidence/foundation-001/`. Pracovný súbor je `Jelena/Jelena_Realistic_v002.blend`; opravené porovnanie z kamery A je v `evidence/vegetation-002/`.
+Foundation: AP pin, README, `.gitignore` a overené MCP spojenie. Prvý baseline render je v `evidence/foundation-001/`. Akceptovaný pracovný súbor je `Jelena/Jelena_Realistic_v003.blend`; akceptovaný vizuál z kamery A je v `.local/renders/smreky-camera-a.png` a jeho evidence manifest v `evidence/vegetation-003/`. Predchádzajúce pokusy sú v `evidence/vegetation-001/` a `evidence/vegetation-002/`.
 
 ## Baseline
 

@@ -1,0 +1,69 @@
+{
+  "artifact": "accepted visual evidence for Jelena_Realistic_v003",
+  "logical_whole": "jelena-vegetation-detail",
+  "accepted_date": "2026-11-12",
+  "accepted_by": "COOPERATOR",
+  "acceptance_basis": "Explicit Cooperator visual acceptance of smreky-camera-a.png and the v003 conifer direction; direct Orchestrator image inspection; generator source review.",
+  "working_blend_path": "/Users/agile/Projects/jelena/Jelena/Jelena_Realistic_v003.blend",
+  "working_blend_sha256": "e97fe7d745e2b5b0f8ce69ab85d8fc449dbd929e277ebc0bd566582844fedf3b",
+  "working_blend_bytes": 46815428,
+  "working_blend_first_commit": "d6bb1899a3d83c2b19d3badf298de840def4215f",
+  "accepted_public_commit": "9d75587e39a97e4f26b106ef2d48a141515401dd",
+  "protected_baselines_sha256": {
+    "Jelena/Jelena.blend": "d2ed50aea93dfc00201be1def6db0b0b353be7eb473a799225c8a6f1386eb06f",
+    "Jelena/Jelena_Realistic_v001.blend": "b8304e7c585c36bec8e93b94868e143c42be00be6e5b3686cb0d05804304001b"
+  },
+  "visual_evidence": {
+    "path": ".local/renders/smreky-camera-a.png",
+    "sha256": "3956952b86a6b6a2246a13426949245aa9f6555c06901b148f356781881799e3",
+    "bytes": 757723,
+    "width": 840,
+    "height": 560,
+    "format": "PNG RGB 8-bit"
+  },
+  "png_metadata": {
+    "file": "/Users/agile/Projects/jelena/Jelena/Jelena_Realistic_v003.blend",
+    "date": "2026/11/12 11:26:58",
+    "frame": "001",
+    "camera": "A • Chata pri lese",
+    "scene": "A • Chata pri lese",
+    "render_time": "00:15.89",
+    "cycles_samples": 16,
+    "cycles_total_time": "00:15.59",
+    "cycles_render_time": "00:14.62",
+    "cycles_synchronization_time": "00:00.97"
+  },
+  "render_settings_recorded": {
+    "resolution": "840x560",
+    "samples": 16,
+    "engine": "Cycles (cycles.ViewLayer metadata)",
+    "device": "not embedded in the PNG",
+    "view_transform": "not embedded in the PNG",
+    "look": "not embedded in the PNG",
+    "exposure": "not embedded in the PNG",
+    "gamma": "not embedded in the PNG",
+    "frame": 1,
+    "camera": "A • Chata pri lese"
+  },
+  "restored_scene_settings_context": "The accepted v003 image is a 16-sample 840x560 camera-A render. The scene's working settings were not re-read for v003; the previous accepted v002 readback restored 1260x840, 80 samples, adaptive on, denoising off, AgX, exposure 0, gamma 1.",
+  "scene_b_basis": "v003 is derived from v002, whose measured readback held 308 objects, sun 2.2, disk 610, interior 65 and world strength 0.48. conifer_detail.py operates on scene A only and guards the v003 filepath and scene A; it does not touch scene B. No fresh v003 readback was taken after the Cooperator continuation.",
+  "keep_out_basis": "conifer_detail.py places tree origins outside the cabin box, the view corridor and the terrace footprint, and rejects raycast misses. The accepted image was visually inspected and shows no conspicuous branch or trunk intersection with the terrace, facade or path. No measured v003 AABB check was taken.",
+  "recorded_scope": [
+    "View transform, look, exposure, gamma and render device are not embedded in the PNG.",
+    "No measured scene-B or keep-out readback exists for v003; the basis is the generator source, the v002 readback and the accepted image.",
+    "No independent audit; the Cooperator accepted the visual result directly."
+  ],
+  "visual_review": {
+    "inspected": true,
+    "accepted_image": "smreky-camera-a.png",
+    "recognizable_cabin": true,
+    "glazing_terrace_and_path_readable": true,
+    "dense_layered_conifers": true,
+    "readable_trunks_and_branches": true,
+    "continuous_ground_cover": true,
+    "sunlight_readable": true,
+    "weakest": "The forest is dense and stylised, the foliage is very saturated, and trees sit close to the cabin. The accepted image has no matched-settings manifest beyond the PNG metadata.",
+    "subjective_acceptance": "accepted by Michal on 2026-11-12"
+  },
+  "status": "accepted"
+}
