@@ -3,7 +3,6 @@
 *.blend@
 *.blend.tmp
 /.cache/
-/renders/tmp/
 **/blendcache_*/
 __pycache__/
 *.py[cod]
