@@ -9,6 +9,7 @@ Cvičný projekt vizualizácie chaty pri lese. Cieľom je ukázať, ako AI-assis
 - `Jelena/Jelena_Realistic_v002.blend` — predchádzajúci pracovný súbor (história).
 - `Jelena/Jelena_Realistic_v003.blend` — akceptovaný pracovný súbor.
 - `Jelena/Jelena_Realistic_v004.blend` — aktuálny pracovný súbor; `v003` zostáva akceptovaný predchodca.
+- `Jelena/Jelena_Realistic_v005.blend` — kandidát prístupovej krajiny; `v004` zostáva akceptovaný exteriér, kým tento celok nie je prijatý.
 - `Jelena/Jelena_3D.obj`, `Jelena/Jelena_Model.step`, `Jelena/Jelena_Podorys.dxf` — geometrické podklady.
 - `Jelena/Jelena_Exterier.png`, `Jelena/Jelena_Dispozicia.png`, `Jelena/Jelena_Interier.png` — referenčné rendery.
 - `Jelena_Studia.pdf` — architektonická štúdia.

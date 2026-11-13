@@ -1,0 +1,63 @@
+{
+  "artifact": "forest access path, gravel pull-off and road for Jelena_Realistic_v005",
+  "logical_whole": "jelena-access-path-and-gravel-parking",
+  "task": "JELENA-ACCESS-PATH-GRAVEL-PARKING-IMPLEMENTATION-CORRECTION-02",
+  "date": "2026-11-13",
+  "blend_path": "Jelena/Jelena_Realistic_v005.blend",
+  "blend_sha256": "77ef85368c6768328552b1c844df16c3de86c2ce137b22c145176b64c38a0f04",
+  "checkpoint_path": ".local/checkpoints/Jelena_Realistic_v004-before-access.blend",
+  "checkpoint_sha256": "00d1dbe65c15a7e86ae52480b4e8aa3cad5744cac9443a10e5a5b230ea9c76aa",
+  "v004_sha256": "00d1dbe65c15a7e86ae52480b4e8aa3cad5744cac9443a10e5a5b230ea9c76aa",
+  "script_path": "scripts/access_landscape_v005.py",
+  "script_sha256": "af201ba84e48d83ddd18bbc4dd0b801be466e59ff51322e06f7f199386eae365",
+  "camera_a": {
+    "name": "A • Chata pri lese",
+    "lens_mm": 46.0,
+    "sensor_fit": "AUTO",
+    "sensor_mm": [36.0, 24.0],
+    "shift": [0.0, 0.0],
+    "location": [13.9, -16.4, 6.35],
+    "rotation_euler": [1.390952, 0.0, 0.477129]
+  },
+  "scene_b_objects": 308,
+  "kamen_users": 25,
+  "proxy_excluded_from_render": true,
+  "hidden_vegetation": [
+    {"name": "Smrek • stredný.021", "collection": "05c • Vegetácia • odstránená pre prístup", "original_collection": "10 • Vegetácia scéna A", "location": [12.105, -0.2409, -0.234], "rotation_euler": [0.0, 0.0, 6.9382], "scale": [0.8, 0.8, 0.8]},
+    {"name": "Smrek • vysoký.015", "collection": "05c • Vegetácia • odstránená pre prístup", "original_collection": "10 • Vegetácia scéna A", "location": [12.6358, -1.9822, -0.2148], "rotation_euler": [0.0, 0.0, 5.7856], "scale": [0.72, 0.72, 0.72]},
+    {"name": "Ker.003", "collection": "05c • Vegetácia • odstránená pre prístup", "original_collection": "10 • Vegetácia scéna A", "location": [13.2, -1.0, -0.2372], "rotation_euler": [0.0, 0.0, 0.7], "scale": [0.9, 0.9, 0.9]}
+  ],
+  "tree_location_check": "remaining spruce locations and scales unchanged; the three hidden objects keep their original location, scale and equivalent orientation",
+  "images": {
+    "camera-a-before.png": {"sha256": "c9c8c29f2a85d25634784307b2ad05d09dd8d8abeaf82377d10adeb3d528690d", "width": 840, "height": 560},
+    "camera-a-after.png": {"sha256": "e9a309da85edf5a74e2db99565f3c9a51bd10e9571c2a8023d7b0fd85b0563f0", "width": 840, "height": 560},
+    "overview.png": {"sha256": "46cfb7bfd09da69d0be56c427ec196ba40d5c345b3cc40000083661a4c508f7a", "width": 840, "height": 560},
+    "camera-a-detail.png": {"sha256": "5cff20c8c4fe6e498cf417b4188ab17bb0e59775c5f8fddcb0b4785f88603f5c", "width": 371, "height": 168},
+    "camera-a-terrace-detail.png": {"sha256": "5db7cc249805b2ced62a7f21fb06d5ee94ee3ce533fdc34120f2e8067a24ee0b", "width": 555, "height": 319}
+  },
+  "renders": {
+    "before": {"camera": "A • Chata pri lese", "frame": 1, "resolution": [840, 560], "samples": 32, "engine": "CYCLES", "device": "CPU", "adaptive": true, "threshold": 0.01, "min_samples": 0, "denoising": true, "denoiser": "OPENIMAGEDENOISE", "seed": 0, "view_transform": "AgX", "look": "None", "exposure": 0.0, "gamma": 1.0, "display": "sRGB", "file_format": "PNG", "color_mode": "RGB", "depth": "8", "border": null, "seconds": 24.24},
+    "after": {"camera": "A • Chata pri lese", "frame": 1, "resolution": [840, 560], "samples": 32, "engine": "CYCLES", "device": "CPU", "adaptive": true, "threshold": 0.01, "min_samples": 0, "denoising": true, "denoiser": "OPENIMAGEDENOISE", "seed": 0, "view_transform": "AgX", "look": "None", "exposure": 0.0, "gamma": 1.0, "display": "sRGB", "file_format": "PNG", "color_mode": "RGB", "depth": "8", "border": null, "seconds": 24.292},
+    "overview": {"camera": "D • Prístup zhora", "frame": 1, "resolution": [840, 560], "samples": 32, "engine": "CYCLES", "device": "CPU", "adaptive": true, "threshold": 0.01, "min_samples": 0, "denoising": true, "denoiser": "OPENIMAGEDENOISE", "seed": 0, "view_transform": "AgX", "look": "None", "exposure": 0.0, "gamma": 1.0, "display": "sRGB", "file_format": "PNG", "color_mode": "RGB", "depth": "8", "border": null, "seconds": 22.411, "location": [7.0, -23.5, 15.5], "lens_mm": 28.0},
+    "side_detail": {"camera": "A • Chata pri lese", "frame": 1, "resolution_setting": [1260, 840], "output_pixels": [371, 168], "samples": 32, "engine": "CYCLES", "device": "CPU", "adaptive": true, "threshold": 0.01, "min_samples": 0, "denoising": true, "denoiser": "OPENIMAGEDENOISE", "seed": 0, "view_transform": "AgX", "look": "None", "exposure": 0.0, "gamma": 1.0, "display": "sRGB", "file_format": "PNG", "color_mode": "RGB", "depth": "8", "border": [0.70, 0.995, 0.0, 0.20], "seconds": 4.658, "note": "Replaced the first crop at border (0.64, 0.995, 0.0, 0.28), which was 6.55 s and showed foreground needles."},
+    "terrace_detail": {"camera": "A • Chata pri lese", "frame": 1, "resolution_setting": [1260, 840], "output_pixels": [555, 319], "samples": 32, "engine": "CYCLES", "device": "CPU", "adaptive": true, "threshold": 0.01, "min_samples": 0, "denoising": true, "denoiser": "OPENIMAGEDENOISE", "seed": 0, "view_transform": "AgX", "look": "None", "exposure": 0.0, "gamma": 1.0, "display": "sRGB", "file_format": "PNG", "color_mode": "RGB", "depth": "8", "border": [0.28, 0.72, 0.0, 0.38], "seconds": 8.289}
+  },
+  "saved_working_recipe": {"resolution": [1260, 840], "samples": 80, "use_denoising": false, "color_mode": "RGBA"},
+  "render_duration_seconds_sum": 90.44,
+  "sampled_rss_kib": {"before_max": 687920, "batch_max": 931808, "detail_correction_max": 756960},
+  "sampled_rss_note": "These values are sampled process RSS from ps, not peak memory.",
+  "visual_review": {
+    "camera_a_shows_side_path": true,
+    "overview_shows_road_parking_path_and_steps": true,
+    "terrace_riser_visible": true,
+    "side_detail_occluded_by_foreground_needles": true,
+    "grass_cleared_on_road_and_paths": true,
+    "east_vegetation_gap_present": true
+  },
+  "known_limitations": [
+    "Three vegetation objects are hidden, not deleted, so the east side of path A has a wider gap.",
+    "The Camera A side-detail crop looks through foreground spruce needles and does not resolve paver joints.",
+    "Papraď.005 and Kameň • les.001 are excluded because their bounds enter the 0.12 m grass mask.",
+    "The road centreline keeps the specified corners."
+  ]
+}
