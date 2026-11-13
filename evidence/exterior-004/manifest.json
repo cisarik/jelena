@@ -1,0 +1,243 @@
+{
+  "artifact": "exterior material evidence for Jelena_Realistic_v004",
+  "logical_whole": "jelena-exterior-material-detail",
+  "task": "JELENA-EXTERIOR-MATERIAL-DETAIL-IMPLEMENT",
+  "date": "2026-11-13",
+  "camera": "A • Chata pri lese",
+  "frame": 1,
+  "evidence_render": {
+    "scene": "A • Chata pri lese",
+    "engine": "CYCLES",
+    "device": "CPU",
+    "resolution_x": 840,
+    "resolution_y": 560,
+    "resolution_percentage": 100,
+    "samples": 32,
+    "use_adaptive_sampling": true,
+    "adaptive_threshold": 0.01,
+    "adaptive_min_samples": 0,
+    "use_denoising": true,
+    "denoiser": "OPENIMAGEDENOISE",
+    "seed": 0,
+    "use_animated_seed": false,
+    "view_transform": "AgX",
+    "look": "None",
+    "exposure": 0.0,
+    "gamma": 1.0,
+    "display_device": "sRGB",
+    "file_format": "PNG",
+    "color_mode": "RGB",
+    "color_depth": "8",
+    "film_transparent": false,
+    "use_border": false
+  },
+  "detail_render": {
+    "resolution_x": 1260,
+    "resolution_y": 840,
+    "samples": 32,
+    "use_adaptive_sampling": true,
+    "adaptive_threshold": 0.01,
+    "adaptive_min_samples": 0,
+    "use_denoising": true,
+    "denoiser": "OPENIMAGEDENOISE",
+    "seed": 0,
+    "use_border": true,
+    "use_crop_to_border": true,
+    "border_min_x": 0.28,
+    "border_max_x": 0.74,
+    "border_min_y": 0.02,
+    "border_max_y": 0.64,
+    "output_pixel_width": 580,
+    "output_pixel_height": 521,
+    "color_management": "same as evidence_render"
+  },
+  "presentation_render": {
+    "produced": true,
+    "reason": "technical checks passed, sampled RSS stayed under 5.0 GiB, refinements used were 0",
+    "resolution_x": 1260,
+    "resolution_y": 840,
+    "samples": 64,
+    "use_adaptive_sampling": true,
+    "use_denoising": true,
+    "denoiser": "OPENIMAGEDENOISE",
+    "seed": 0,
+    "color_management": "same as evidence_render"
+  },
+  "saved_working_recipe": {
+    "resolution_x": 1260,
+    "resolution_y": 840,
+    "resolution_percentage": 100,
+    "samples": 80,
+    "use_adaptive_sampling": true,
+    "adaptive_threshold": 0.01,
+    "adaptive_min_samples": 0,
+    "use_denoising": false,
+    "denoiser": "OPENIMAGEDENOISE",
+    "file_format": "PNG",
+    "color_mode": "RGBA",
+    "color_depth": "8",
+    "output_path": "/tmp/",
+    "film_transparent": false,
+    "use_border": false
+  },
+  "output_paths": {
+    "before": "evidence/exterior-004/camera-a-before.png",
+    "after": "evidence/exterior-004/camera-a-after.png",
+    "detail": "evidence/exterior-004/camera-a-detail.png",
+    "presentation": "evidence/exterior-004/camera-a-presentation.png"
+  },
+  "blend_path": "Jelena/Jelena_Realistic_v004.blend",
+  "blend_sha256": "f02ad73ce879cd30ced6ab88dda01c6a4ecbfc7b03333b74b9036190712d5272",
+  "blend_bytes": 46850325,
+  "script_path": "scripts/exterior_material_v004.py",
+  "script_sha256": "6c332d84e9580b31017ca198bf238d5423faa2766cd1a1795ef0e889889009e4",
+  "script_bytes": 19211,
+  "checkpoint_path": ".local/checkpoints/Jelena_Realistic_v003-before-exterior.blend",
+  "checkpoint_sha256": "e97fe7d745e2b5b0f8ce69ab85d8fc449dbd929e277ebc0bd566582844fedf3b",
+  "checkpoint_bytes": 46815428,
+  "readme_sha256": "e4e8d95dff90656f0ed88e04e73758574ac172dfb0f6bb891054554d73e57035",
+  "readme_bytes": 2346,
+  "images": {
+    "before": {
+      "sha256": "55a13ccf97b87c2bd2af99c99de0cec5de16a27a497644403dc9acfb2626ae2c",
+      "bytes": 764887,
+      "width": 840,
+      "height": 560,
+      "seconds": 26.582
+    },
+    "after": {
+      "sha256": "da56d8e671f8db64b42fdeafdc784ab8a4144a151861faec0dc3cf5c12a0dc72",
+      "bytes": 766155,
+      "width": 840,
+      "height": 560,
+      "seconds": 22.916
+    },
+    "detail": {
+      "sha256": "8979d02f2d59f4e93727f9671102f545582ee667a22f7919fc4e9599d2031771",
+      "bytes": 471156,
+      "width": 580,
+      "height": 521,
+      "seconds": 14.705
+    },
+    "presentation": {
+      "sha256": "81ea36d93a0968e2c9330e6b4f8c9fe6a27a858a81d8e2f651964a201c7ffde8",
+      "bytes": 1712175,
+      "width": 1260,
+      "height": 840,
+      "seconds": 98.082
+    }
+  },
+  "render_duration_seconds_sum": 162.285,
+  "refinements_used": 0,
+  "retained_renders": 4,
+  "scene_object_counts": {
+    "A • Chata pri lese": 921,
+    "B • Zariadená dispozícia": 308
+  },
+  "collections": {
+    "scene_A_excludes_06_Terasa": true,
+    "scene_B_includes_06_Terasa": true,
+    "scene_A_includes_06b": true,
+    "scene_B_has_06b": false,
+    "06b_objects": 51,
+    "06b_duplicates_in_scene_B": 0
+  },
+  "material_users": {
+    "Fasáda • termodrevo scene A": 0,
+    "Fasáda • termodrevo scene B": 156,
+    "Fasáda • lata • A scene A": 312,
+    "Fasáda • lata • A scene B": 0,
+    "Fasáda • podklad • A scene A": 23,
+    "Fasáda • podklad • A scene B": 0,
+    "Terasa • smrekovec scene B": 25,
+    "Terasa • smrekovec • A scene A": 25,
+    "Terasa • smrekovec • A scene B": 0,
+    "Sklo • exteriér A scene A": 9,
+    "Sklo • exteriér A scene B": 0,
+    "Sprchová zástena": "Sklo • priehľadné",
+    "Strecha • falcovaný plech scene A": 45,
+    "Strecha • falcovaný plech scene B": 0,
+    "Slab_027": "Kameň",
+    "collection 08 façade material users": 156
+  },
+  "cameras": {
+    "A • Chata pri lese": {
+      "lens_mm": 46.0,
+      "location_m": [13.9, -16.4, 6.35],
+      "rotation_euler_rad": [1.390952, 0.0, 0.477129],
+      "sensor_fit": "AUTO",
+      "sensor_width_mm": 36.0,
+      "sensor_height_mm": 24.0,
+      "shift": [0.0, 0.0]
+    },
+    "B • Zariadená dispozícia": {
+      "lens_mm": 40.0,
+      "location_m": [12.0, -12.0, 13.0],
+      "rotation_euler_rad": [0.912837, 0.0, 0.498356]
+    },
+    "C • Interiér pri terase": {
+      "lens_mm": 19.0,
+      "location_m": [7.67, 4.63, 1.55],
+      "rotation_euler_rad": [1.513068, 0.0, 2.367688]
+    }
+  },
+  "light_energy": {
+    "Mäkké svetlo z čistiny": 610.0,
+    "Mäkké svetlo z čistiny • A": 40.0,
+    "Popoludňajšie slnko": 2.2,
+    "Popoludňajšie slnko • A": 6.5,
+    "Svetlo v interiéri": 65.0
+  },
+  "worlds": {
+    "Obloha nad lesom": 0.48,
+    "Obloha nad lesom • A": 0.5
+  },
+  "preservation_checks": {
+    "v003_sha256_unchanged": "e97fe7d745e2b5b0f8ce69ab85d8fc449dbd929e277ebc0bd566582844fedf3b",
+    "jelena_blend_sha256_unchanged": "d2ed50aea93dfc00201be1def6db0b0b353be7eb473a799225c8a6f1386eb06f",
+    "v001_sha256_unchanged": "b8304e7c585c36bec8e93b94868e143c42be00be6e5b3686cb0d05804304001b",
+    "accepted_png_sha256_unchanged": "3956952b86a6b6a2246a13426949245aa9f6555c06901b148f356781881799e3",
+    "vegetation_manifest_sha256_unchanged": "3251b5daca9395be4738f08c5eb11b1872904f5b65ba9d76e3ddb2c8f55c00b8",
+    "scene_B_objects": 308,
+    "vegetation_collection_10_objects": 93,
+    "image_datablocks": ["Render Result"],
+    "libraries": 0,
+    "protected_material_node_trees_unchanged": true
+  },
+  "pixel_difference_before_after": {
+    "method": "stdlib PNG decode, mean sum of absolute RGB channel deltas",
+    "facade_window_mean": 60.61,
+    "glass_window_mean": 109.46,
+    "deck_window_mean": 25.09,
+    "roof_window_mean": 13.68,
+    "full_frame_mean": 17.81
+  },
+  "visual_review": {
+    "inspected": true,
+    "visible_difference_at_840x560": true,
+    "batten_gaps_darker": true,
+    "grain_follows_vertical_battens": true,
+    "glass_reads_as_glass": true,
+    "deck_planks_remain_separate": true,
+    "roof_seams_remain": true,
+    "new_intersections_or_double_terrace": false,
+    "notes": "No numeric refinement and no batten bevel. The detail crop shows the existing batten gaps, the three terrace doors, and the deck. Roof roughness variation is subtle. Tree defects remain out of scope."
+  },
+  "known_limitations": [
+    "Tree errors, floating foliage, foliage saturation and tree generation were not changed.",
+    "Antracit frames, the chimney, the terrace frame, interior oak furniture and the stone plinth were not changed.",
+    "Shower glass remains on the original shared glass material.",
+    "Original terrace objects remain in scene A but are excluded from its view layer."
+  ],
+  "sampled_rss_kib": {
+    "before_render_start": 39024,
+    "before_render_end": 618544,
+    "after_render_start": 55520,
+    "after_render_end": 932816,
+    "detail_render_start": 35936,
+    "detail_render_end": 828560,
+    "presentation_render_start": 450240,
+    "presentation_render_end": 989264
+  },
+  "sampled_rss_note": "These values are sampled process RSS from ps, not peak memory."
+}
