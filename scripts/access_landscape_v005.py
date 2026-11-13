@@ -849,4 +849,189 @@ def build():
     }, ensure_ascii=False))
 
 
-build()
+def apply_owner_correction():
+    """Darken the parking, flare the path-B end, and add review cameras.
+
+    Does not rebuild the scene or move Camera A, Camera D, or any tree.
+    """
+    if "07e • Kamery • hodnotenie • A" in bpy.data.collections:
+        fail("owner correction already applied")
+    end = np.array((5.40, -9.20))
+    tangent = np.array((-1.0, -1.0))
+    tangent /= np.linalg.norm(tangent)
+    normal = np.array((-tangent[1], tangent[0]))
+    before_a = bpy.data.objects["A • Chata pri lese"].matrix_world.copy()
+    before_d = bpy.data.objects["D • Prístup zhora"].matrix_world.copy()
+
+    def flare(obj):
+        for vertex in obj.data.vertices:
+            xy = np.array((vertex.co.x, vertex.co.y))
+            along = float(np.dot(end - xy, tangent))
+            if along < -0.03 or along > 0.83:
+                continue
+            clamped = min(max(along, 0.0), 0.80)
+            target = 0.80 - 0.20 * (clamped / 0.80)
+            centre = end - tangent * along
+            lateral = float(np.dot(xy - centre, normal))
+            widened = centre + normal * lateral * (target / 0.60)
+            vertex.co.x = float(widened[0])
+            vertex.co.y = float(widened[1])
+        obj.data.update()
+
+    flare(bpy.data.objects["Chodník • terasa"])
+    flare(bpy.data.objects["Lôžko • chodník"])
+
+    road_mat = bpy.data.materials.new("Cesta • lesná")
+    road_mat.use_nodes = True
+    nodes = road_mat.node_tree
+    nodes.nodes.clear()
+    out = nodes.nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nodes.nodes.new("ShaderNodeBsdfPrincipled")
+    coord = nodes.nodes.new("ShaderNodeTexCoord")
+    noise = nodes.nodes.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = 3.0
+    noise.inputs["Detail"].default_value = 2.0
+    mix = nodes.nodes.new("ShaderNodeMix")
+    mix.data_type = "RGBA"
+    mix.inputs["A"].default_value = (0.28, 0.25, 0.20, 1)
+    mix.inputs["B"].default_value = (0.42, 0.38, 0.30, 1)
+    bump = nodes.nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = 0.08
+    bump.inputs["Distance"].default_value = 0.006
+    bsdf.inputs["Roughness"].default_value = 0.86
+    nodes.links.new(coord.outputs["Object"], noise.inputs["Vector"])
+    nodes.links.new(noise.outputs["Fac"], mix.inputs["Factor"])
+    nodes.links.new(mix.outputs["Result"], bsdf.inputs["Base Color"])
+    nodes.links.new(noise.outputs["Fac"], bump.inputs["Height"])
+    nodes.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+    nodes.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+
+    park_mat = bpy.data.materials.new("Parkovanie • čierny štrk")
+    park_mat.use_nodes = True
+    nodes = park_mat.node_tree
+    nodes.nodes.clear()
+    out = nodes.nodes.new("ShaderNodeOutputMaterial")
+    bsdf = nodes.nodes.new("ShaderNodeBsdfPrincipled")
+    coord = nodes.nodes.new("ShaderNodeTexCoord")
+    noise = nodes.nodes.new("ShaderNodeTexNoise")
+    noise.inputs["Scale"].default_value = 4.0
+    noise.inputs["Detail"].default_value = 4.0
+    voro = nodes.nodes.new("ShaderNodeTexVoronoi")
+    voro.inputs["Scale"].default_value = 22.0
+    stones = nodes.nodes.new("ShaderNodeMix")
+    stones.data_type = "RGBA"
+    stones.inputs["A"].default_value = (0.02, 0.02, 0.02, 1)
+    stones.inputs["B"].default_value = (0.06, 0.055, 0.05, 1)
+    tracks = nodes.nodes.new("ShaderNodeMix")
+    tracks.data_type = "RGBA"
+    tracks.inputs["B"].default_value = (0.09, 0.08, 0.07, 1)
+    wear = nodes.nodes.new("ShaderNodeAttribute")
+    wear.attribute_name = "wear"
+    wear.attribute_type = "GEOMETRY"
+    bump = nodes.nodes.new("ShaderNodeBump")
+    bump.inputs["Strength"].default_value = 0.20
+    bump.inputs["Distance"].default_value = 0.01
+    bsdf.inputs["Roughness"].default_value = 0.88
+    nodes.links.new(coord.outputs["Object"], noise.inputs["Vector"])
+    nodes.links.new(coord.outputs["Object"], voro.inputs["Vector"])
+    nodes.links.new(voro.outputs["Distance"], stones.inputs["Factor"])
+    nodes.links.new(stones.outputs["Result"], tracks.inputs["A"])
+    nodes.links.new(wear.outputs["Fac"], tracks.inputs["Factor"])
+    nodes.links.new(tracks.outputs["Result"], bsdf.inputs["Base Color"])
+    nodes.links.new(noise.outputs["Fac"], bump.inputs["Height"])
+    nodes.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+    nodes.links.new(bsdf.outputs["BSDF"], out.inputs["Surface"])
+
+    bpy.data.objects["Cesta • les"].data.materials[0] = road_mat
+    bpy.data.objects["Parkovanie • štrk"].data.materials[0] = park_mat
+    old = bpy.data.materials.get("Štrk • prístup")
+    if old is not None and old.users == 0:
+        bpy.data.materials.remove(old)
+
+    terrain = bpy.data.objects["Lesná čistina"]
+    apron_verts = []
+    apron_faces = []
+    along_steps, side_steps = 8, 10
+    for i in range(along_steps + 1):
+        along = -0.60 + 0.80 * i / along_steps
+        for j in range(side_steps + 1):
+            side = -0.90 + 1.80 * j / side_steps
+            xy = end - tangent * along + normal * side
+            ground = terrain_z(terrain, xy[0], xy[1])
+            if ground is None:
+                fail("apron terrain")
+            apron_verts.append((float(xy[0]), float(xy[1]), ground + 0.012))
+        if i:
+            for j in range(side_steps):
+                a = (i - 1) * (side_steps + 1) + j
+                b = i * (side_steps + 1) + j
+                apron_faces.append((a, b, b + 1, a + 1))
+    apron = bpy.data.objects.new("Prechod • štrk", new_mesh("Prechod • štrk", apron_verts, apron_faces))
+    bpy.data.collections["11 • Prístup • A"].objects.link(apron)
+    apron.data.materials.append(park_mat)
+    for poly in apron.data.polygons:
+        poly.use_smooth = True
+
+    mask = bpy.data.objects["Maska prístupu"]
+    bm = __import__("bmesh").new()
+    bm.from_mesh(mask.data)
+    sheet = []
+    for i in range(2):
+        along = -0.72 + 1.72 * i
+        row = []
+        for j in range(2):
+            side = -1.02 + 2.04 * j
+            xy = end - tangent * along + normal * side
+            row.append(bm.verts.new((float(xy[0]), float(xy[1]), 10.0)))
+        sheet.append(row)
+    bm.faces.new((sheet[0][0], sheet[0][1], sheet[1][1], sheet[1][0]))
+    bm.to_mesh(mask.data)
+    bm.free()
+    mask.data.update()
+
+    col = link_scene_a("07e • Kamery • hodnotenie • A")
+
+    def add_camera(name, location, lens, target=None, ortho=None):
+        data = bpy.data.cameras.new(name)
+        data.sensor_width = 36.0
+        data.sensor_height = 24.0
+        data.clip_end = 1000.0
+        if ortho is not None:
+            data.type = "ORTHO"
+            data.ortho_scale = ortho
+        else:
+            data.type = "PERSP"
+            data.lens = lens
+        obj = bpy.data.objects.new(name, data)
+        col.objects.link(obj)
+        obj.location = location
+        if target is None:
+            obj.rotation_euler = (0.0, 0.0, 0.0)
+        else:
+            direction = (Vector(target) - obj.location).normalized()
+            obj.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
+        return obj
+
+    add_camera("E • Prístup • bok", (-7.0, -20.0, 9.0), 26.0, (5.5, -7.5, -0.2))
+    add_camera("F • Prístup • pôdorys", (5.0, -7.0, 30.0), 28.0, ortho=32.0)
+    add_camera("G • Napojenie • detail", (2.5, -6.0, 3.5), 35.0, (5.6, -9.4, -0.2))
+    add_camera("H • Parkovanie • detail", (7.5, -5.0, 4.0), 35.0, (8.3, -10.5, -0.2))
+    add_camera("I • Chodník A • detail", (8.454, 6.834, 5.868), 35.0, (10.8, 0.0, -0.2))
+
+    if len(bpy.data.scenes[SCENE_B].objects) != 308:
+        fail("scene B")
+    if layer_collection(bpy.data.scenes[SCENE_B].view_layers[0], "07e • Kamery • hodnotenie • A") is not None:
+        fail("07e leaked")
+    for name, before in (("A • Chata pri lese", before_a), ("D • Prístup zhora", before_d)):
+        now = bpy.data.objects[name].matrix_world
+        if max(abs(now[i][j] - before[i][j]) for i in range(4) for j in range(4)) > 1e-6:
+            fail(f"{name} moved")
+    if bpy.context.scene.camera.name != CAM_A:
+        fail("active camera")
+    print(json.dumps({"apron": [1.80, 0.80], "flare_m": 0.80, "flare_width": [1.20, 1.60], "cameras": 5}, ensure_ascii=False))
+
+
+if "11 • Prístup • A" in bpy.data.collections and "07e • Kamery • hodnotenie • A" not in bpy.data.collections:
+    apply_owner_correction()
+elif "11 • Prístup • A" not in bpy.data.collections:
+    build()
